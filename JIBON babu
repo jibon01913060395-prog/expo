@@ -1,0 +1,665 @@
+import React, { useState } from "react";
+import {
+  View, Text, ScrollView, TouchableOpacity,
+  TextInput, StyleSheet, Alert
+} from "react-native";
+
+const currencies = [
+  { name: "BDT", rate: 1 },
+  { name: "USD", rate: 122 },
+  { name: "EUR", rate: 132 },
+  { name: "INR", rate: 1.42 },
+  { name: "GBP", rate: 155 }
+];
+
+export default function App() {
+  const [page, setPage] = useState("Home");
+  const [walletType, setWalletType] = useState("Digital Money");
+  const [amount, setAmount] = useState("100");
+  const [from, setFrom] = useState("BDT");
+  const [to, setTo] = useState("USD");
+
+  const fromRate = currencies.find(c => c.name === from).rate;
+  const toRate = currencies.find(c => c.name === to).rate;
+  const converted =
+    ((Number(amount) || 0) * fromRate / toRate).toFixed(2);
+
+  const demoAction = (name) => {
+    Alert.alert(
+      "Demo Version",
+      name + " ফিচারটি পরবর্তী ধাপে চালু করা হবে। এখানে এখনো আসল টাকা লেনদেন হয় না।"
+    );
+  };
+
+  const Button = ({ title, onPress }) => (
+    <TouchableOpacity style={styles.button} onPress={onPress}>
+      <Text style={styles.buttonText}>{title}</Text>
+    </TouchableOpacity>
+  );
+
+  const Card = ({ title, subtitle, onPress }) => (
+    <TouchableOpacity style={styles.card} onPress={onPress}>
+      <Text style={styles.cardTitle}>{title}</Text>
+      <Text style={styles.muted}>{subtitle}</Text>
+    </TouchableOpacity>
+  );
+
+  const showWallet = () => (
+    <ScrollView>
+      <Text style={styles.heading}>My Wallet 💰</Text>
+
+      <View style={styles.walletBox}>
+        <Text style={styles.walletLabel}>Demo Balance</Text>
+        <Text style={styles.balance}>৳ 10,000.00</Text>
+        <Text style={styles.muted}>এটি নমুনা ব্যালেন্স, আসল টাকা নয়</Text>
+      </View>
+
+      <View style={styles.row}>
+        <TouchableOpacity
+          style={[styles.choice, walletType === "Digital Money" && styles.active]}
+          onPress={() => setWalletType("Digital Money")}
+        >
+          <Text style={styles.choiceText}>Digital Money</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.choice, walletType === "Crypto" && styles.active]}
+          onPress={() => setWalletType("Crypto")}
+        >
+          <Text style={styles.choiceText}>Crypto</Text>
+        </TouchableOpacity>
+      </View>
+
+      {walletType === "Digital Money" ? (
+        <>
+          <Card title="🇧🇩 Bangladesh Taka" subtitle="BDT • Demo balance ৳10,000" />
+          <Card title="🇺🇸 US Dollar" subtitle="USD • Demo balance $50" />
+          <Card title="🌍 Other Currencies" subtitle="EUR • INR • GBP" />
+          <Button title="Deposit Money" onPress={() => demoAction("Deposit")} />
+          <Button title="Withdraw Money" onPress={() => demoAction("Withdraw")} />
+          <Text style={styles.muted}>
+            ভবিষ্যতে অনুমোদিত পেমেন্ট পার্টনারের মাধ্যমে bKash, Nagad,
+            Rocket এবং অন্যান্য দেশের সেবা যুক্ত করার পরিকল্পনা থাকবে।
+          </Text>
+        </>
+      ) : (
+        <>
+          <Card title="₿ Bitcoin (BTC)" subtitle="Demo balance: 0.001 BTC" />
+          <Card title="Ethereum (ETH)" subtitle="Demo balance: 0.05 ETH" />
+          <Card title="USDT" subtitle="Demo balance: 25 USDT" />
+          <Button title="Crypto Deposit" onPress={() => demoAction("Crypto Deposit")} />
+          <Button title="Crypto Withdraw" onPress={() => demoAction("Crypto Withdraw")} />
+          <Text style={styles.muted}>
+            এটি শুধু Wallet-এর নমুনা ডিজাইন। বাস্তব Crypto লেনদেন এখনো চালু নয়।
+          </Text>
+        </>
+      )}
+
+      <Text style={styles.section}>Currency Exchange</Text>
+      <Text style={styles.muted}>নমুনা বিনিময় হিসাব</Text>
+
+      <TextInput
+        style={styles.input}
+        keyboardType="decimal-pad"
+        value={amount}
+        onChangeText={setAmount}
+        placeholder="Amount"
+        placeholderTextColor="#999"
+      />
+
+      <View style={styles.row}>
+        <TouchableOpacity style={styles.choice}
+          onPress={() => setFrom(currencies[(currencies.findIndex(c => c.name === from) + 1) % currencies.length].name)}>
+          <Text style={styles.choiceText}>From: {from} ↻</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.choice}
+          onPress={() => setTo(currencies[(currencies.findIndex(c => c.name === to) + 1) % currencies.length].name)}>
+          <Text style={styles.choiceText}>To: {to} ↻</Text>
+        </TouchableOpacity>
+      </View>
+
+      <Text style={styles.result}>{converted} {to}</Text>
+      <Text style={styles.muted}>এই বিনিময় হারগুলো শুধু উদাহরণ, লাইভ বাজারদর নয়।</Text>
+    </ScrollView>
+  );
+
+  const tools = [
+    ["👥 Friends", "বন্ধু খুঁজুন"],
+    ["💬 Chat", "মেসেজ আদান-প্রদান"],
+    ["📞 Audio & Video Call", "কল ফিচার"],
+    ["📍 Live Location Sharing", "অনুমতি নিয়ে লোকেশন শেয়ার"],
+    ["🖼️ Photo & Video Sharing", "ছবি ও ভিডিও"],
+    ["🔗 Link Tracker", "সম্মতিভিত্তিক লিংক অ্যানালিটিক্স"],
+    ["📊 Activity Dashboard", "অ্যাপের কার্যক্রম"],
+    ["🤖 AI Assistant", "AI সহকারী"],
+    ["🔔 Notifications", "নোটিফিকেশন"],
+    ["⚙️ Settings & Privacy", "প্রাইভেসি সেটিংস"],
+    ["🔐 Security Center", "অ্যাকাউন্ট নিরাপত্তা"]
+  ];
+
+  const showPage = () => {
+    if (page === "Wallet") return showWallet();
+
+    if (page === "Tools") {
+      return (
+        <ScrollView>
+          <Text style={styles.heading}>All Features</Text>
+          {tools.map(item => (
+            <Card key={item[0]} title={item[0]}
+              subtitle={item[1]}
+              onPress={() => demoAction(item[0])} />
+          ))}
+        </ScrollView>
+      );
+    }
+
+    if (page === "Social") {
+      return (
+        <ScrollView>
+          <Text style={styles.heading}>Social Feed 🌐</Text>
+          <TextInput style={styles.input} placeholder="What's on your mind?"
+            placeholderTextColor="#999" />
+          <Button title="Create Post" onPress={() => demoAction("Post")} />
+          <Card title="Welcome to Babu Link Tracker"
+            subtitle="এখানে বন্ধুদের পোস্ট, ছবি ও ভিডিও দেখা যাবে।" />
+        </ScrollView>
+      );
+    }
+
+    if (page === "Profile") {
+      return (
+        <ScrollView>
+          <Text style={styles.heading}>My Profile 👤</Text>
+          <Card title="Babu Link Tracker User" subtitle="Your profile" />
+          <Card title="Settings & Privacy" subtitle="Manage your account" />
+        </ScrollView>
+      );
+    }
+
+    return (
+      <ScrollView>
+        <Text style={styles.heading}>Babu Link Tracker</Text>
+        <Text style={styles.muted}>Your Social & Digital World</Text>
+        <View style={styles.walletBox}>
+          <Text style={styles.walletLabel}>Welcome!</Text>
+          <Text style={styles.balance}>One App. Many Possibilities.</Text>
+        </View>
+        <Card title="🌐 Social Media" subtitle="Connect with friends"
+          onPress={() => setPage("Social")} />
+        <Card title="💰 My Wallet" subtitle="Crypto + Digital Money"
+          onPress={() => setPage("Wallet")} />
+        <Card title="🛠️ All Features" subtitle="Explore the app"
+          onPress={() => setPage("Tools")} />
+      </ScrollView>
+    );
+  };
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.logo}>BABU LINK TRACKER</Text>
+        <Text style={styles.headerSub}>Social • Wallet • Connect</Text>
+      </View>
+
+      <View style={styles.content}>{showPage()}</View>
+
+      <View style={styles.nav}>
+        {["Home", "Social", "Wallet", "Tools", "Profile"].map((item) => (
+          <TouchableOpacity key={item} onPress={() => setPage(item)}
+            style={styles.navItem}>
+            <Text style={[styles.navText, page === item && styles.navActive]}>
+              {item === "Home" ? "🏠" :
+               item === "Social" ? "👥" :
+               item === "Wallet" ? "💰" :
+               item === "Tools" ? "🛠️" : "👤"}
+            </Text>
+            <Text style={[styles.navLabel, page === item && styles.navActive]}>
+              {item}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: "#F1F5FB" },
+  header: { backgroundColor: "#142B55", padding: 20, paddingTop: 45 },
+  logo: { color: "white", fontSize: 21, fontWeight: "bold" },
+  headerSub: { color: "#C8D8F5", marginTop: 5 },
+  content: { flex: 1, padding: 15 },
+  heading: { fontSize: 24, fontWeight: "bold", color: "#142B55", marginBottom: 15 },
+  walletBox: { backgroundColor: "#142B55", padding: 22, borderRadius: 18, marginVertical: 12 },
+  walletLabel: { color: "#C8D8F5", fontSize: 15 },
+  balance: { color: "white", fontSize: 25, fontWeight: "bold", marginVertical: 8 },
+  card: { backgroundColor: "white", padding: 17, borderRadius: 14, marginVertical: 6 },
+  cardTitle: { color: "#142B55", fontSize: 17, fontWeight: "bold" },
+  muted: { color: "#69758A", fontSize: 13, marginTop: 5 },
+  button: { backgroundColor: "#2865D7", padding: 15, borderRadius: 12, marginVertical: 6 },
+  buttonText: { color: "white", textAlign: "center", fontWeight: "bold" },
+  row: { flexDirection: "row", gap: 8, marginVertical: 12 },
+  choice: { flex: 1, padding: 13, borderRadius: 10, backgroundColor: "#DDE6F5" },
+  active: { backgroundColor: "#AFC9FA" },
+  choiceText: { color: "#142B55", textAlign: "center", fontWeight: "bold" },
+  section: { color: "#142B55", fontWeight: "bold", fontSize: 19, marginTop: 22 },
+  input: { backgroundColor: "white", borderRadius: 10, padding: 14, marginVertical: 10, color: "#142B55" },
+  result: { fontSize: 23, color: "#2865D7", fontWeight: "bold", marginVertical: 10 },
+  nav: { flexDirection: "row", backgroundColor: "white", paddingVertical: 10, borderTopWidth: 1, borderColor: "#E0E6EF" },
+  navItem: { flex: 1, alignItems: "center" },
+  navText: { fontSize: 19 },
+  navLabel: { fontSize: 10, color: "#68758A", marginTop: 3 },
+  navActive: { color: "#2865D7", fontWeight: "bold" }
+});import React, { useState } from "react";
+import {
+  View, Text, ScrollView, TouchableOpacity,
+  TextInput, StyleSheet, Alert
+} from "react-native";
+
+const currencies = [
+  { name: "BDT", rate: 1 },
+  { name: "USD", rate: 122 },
+  { name: "EUR", rate: 132 },
+  { name: "INR", rate: 1.42 },
+  { name: "GBP", rate: 155 }
+];
+
+export default function App() {
+  const [page, setPage] = useState("Home");
+  const [walletType, setWalletType] = useState("Digital Money");
+  const [amount, setAmount] = useState("100");
+  const [from, setFrom] = useState("BDT");
+  const [to, setTo] = useState("USD");
+
+  const fromRate = currencies.find(c => c.name === from).rate;
+  const toRate = currencies.find(c => c.name === to).rate;
+  const converted =
+    ((Number(amount) || 0) * fromRate / toRate).toFixed(2);
+
+  const demoAction = (name) => {
+    Alert.alert(
+      "Demo Version",
+      name + " ফিচারটি পরবর্তী ধাপে চালু করা হবে। এখানে এখনো আসল টাকা লেনদেন হয় না।"
+    );
+  };
+
+  const Button = ({ title, onPress }) => (
+    <TouchableOpacity style={styles.button} onPress={onPress}>
+      <Text style={styles.buttonText}>{title}</Text>
+    </TouchableOpacity>
+  );
+
+  const Card = ({ title, subtitle, onPress }) => (
+    <TouchableOpacity style={styles.card} onPress={onPress}>
+      <Text style={styles.cardTitle}>{title}</Text>
+      <Text style={styles.muted}>{subtitle}</Text>
+    </TouchableOpacity>
+  );
+
+  const showWallet = () => (
+    <ScrollView>
+      <Text style={styles.heading}>My Wallet 💰</Text>
+
+      <View style={styles.walletBox}>
+        <Text style={styles.walletLabel}>Demo Balance</Text>
+        <Text style={styles.balance}>৳ 10,000.00</Text>
+        <Text style={styles.muted}>এটি নমুনা ব্যালেন্স, আসল টাকা নয়</Text>
+      </View>
+
+      <View style={styles.row}>
+        <TouchableOpacity
+          style={[styles.choice, walletType === "Digital Money" && styles.active]}
+          onPress={() => setWalletType("Digital Money")}
+        >
+          <Text style={styles.choiceText}>Digital Money</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.choice, walletType === "Crypto" && styles.active]}
+          onPress={() => setWalletType("Crypto")}
+        >
+          <Text style={styles.choiceText}>Crypto</Text>
+        </TouchableOpacity>
+      </View>
+
+      {walletType === "Digital Money" ? (
+        <>
+          <Card title="🇧🇩 Bangladesh Taka" subtitle="BDT • Demo balance ৳10,000" />
+          <Card title="🇺🇸 US Dollar" subtitle="USD • Demo balance $50" />
+          <Card title="🌍 Other Currencies" subtitle="EUR • INR • GBP" />
+          <Button title="Deposit Money" onPress={() => demoAction("Deposit")} />
+          <Button title="Withdraw Money" onPress={() => demoAction("Withdraw")} />
+          <Text style={styles.muted}>
+            ভবিষ্যতে অনুমোদিত পেমেন্ট পার্টনারের মাধ্যমে bKash, Nagad,
+            Rocket এবং অন্যান্য দেশের সেবা যুক্ত করার পরিকল্পনা থাকবে।
+          </Text>
+        </>
+      ) : (
+        <>
+          <Card title="₿ Bitcoin (BTC)" subtitle="Demo balance: 0.001 BTC" />
+          <Card title="Ethereum (ETH)" subtitle="Demo balance: 0.05 ETH" />
+          <Card title="USDT" subtitle="Demo balance: 25 USDT" />
+          <Button title="Crypto Deposit" onPress={() => demoAction("Crypto Deposit")} />
+          <Button title="Crypto Withdraw" onPress={() => demoAction("Crypto Withdraw")} />
+          <Text style={styles.muted}>
+            এটি শুধু Wallet-এর নমুনা ডিজাইন। বাস্তব Crypto লেনদেন এখনো চালু নয়।
+          </Text>
+        </>
+      )}
+
+      <Text style={styles.section}>Currency Exchange</Text>
+      <Text style={styles.muted}>নমুনা বিনিময় হিসাব</Text>
+
+      <TextInput
+        style={styles.input}
+        keyboardType="decimal-pad"
+        value={amount}
+        onChangeText={setAmount}
+        placeholder="Amount"
+        placeholderTextColor="#999"
+      />
+
+      <View style={styles.row}>
+        <TouchableOpacity style={styles.choice}
+          onPress={() => setFrom(currencies[(currencies.findIndex(c => c.name === from) + 1) % currencies.length].name)}>
+          <Text style={styles.choiceText}>From: {from} ↻</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.choice}
+          onPress={() => setTo(currencies[(currencies.findIndex(c => c.name === to) + 1) % currencies.length].name)}>
+          <Text style={styles.choiceText}>To: {to} ↻</Text>
+        </TouchableOpacity>
+      </View>
+
+      <Text style={styles.result}>{converted} {to}</Text>
+      <Text style={styles.muted}>এই বিনিময় হারগুলো শুধু উদাহরণ, লাইভ বাজারদর নয়।</Text>
+    </ScrollView>
+  );
+
+  const tools = [
+    ["👥 Friends", "বন্ধু খুঁজুন"],
+    ["💬 Chat", "মেসেজ আদান-প্রদান"],
+    ["📞 Audio & Video Call", "কল ফিচার"],
+    ["📍 Live Location Sharing", "অনুমতি নিয়ে লোকেশন শেয়ার"],
+    ["🖼️ Photo & Video Sharing", "ছবি ও ভিডিও"],
+    ["🔗 Link Tracker", "সম্মতিভিত্তিক লিংক অ্যানালিটিক্স"],
+    ["📊 Activity Dashboard", "অ্যাপের কার্যক্রম"],
+    ["🤖 AI Assistant", "AI সহকারী"],
+    ["🔔 Notifications", "নোটিফিকেশন"],
+    ["⚙️ Settings & Privacy", "প্রাইভেসি সেটিংস"],
+    ["🔐 Security Center", "অ্যাকাউন্ট নিরাপত্তা"]
+  ];
+
+  const showPage = () => {
+    if (page === "Wallet") return showWallet();
+
+    if (page === "Tools") {
+      return (
+        <ScrollView>
+          <Text style={styles.heading}>All Features</Text>
+          {tools.map(item => (
+            <Card key={item[0]} title={item[0]}
+              subtitle={item[1]}
+              onPress={() => demoAction(item[0])} />
+          ))}
+        </ScrollView>
+      );
+    }
+
+    if (page === "Social") {
+      return (
+        <ScrollView>
+          <Text style={styles.heading}>Social Feed 🌐</Text>
+          <TextInput style={styles.input} placeholder="What's on your mind?"
+            placeholderTextColor="#999" />
+          <Button title="Create Post" onPress={() => demoAction("Post")} />
+          <Card title="Welcome to Babu Link Tracker"
+            subtitle="এখানে বন্ধুদের পোস্ট, ছবি ও ভিডিও দেখা যাবে।" />
+        </ScrollView>
+      );
+    }
+
+    if (page === "Profile") {
+      return (
+        <ScrollView>
+          <Text style={styles.heading}>My Profile 👤</Text>
+          <Card title="Babu Link Tracker User" subtitle="Your profile" />
+          <Card title="Settings & Privacy" subtitle="Manage your account" />
+        </ScrollView>
+      );
+    }
+
+    return (
+      <ScrollView>
+        <Text style={styles.heading}>Babu Link Tracker</Text>
+        <Text style={styles.muted}>Your Social & Digital World</Text>
+        <View style={styles.walletBox}>
+          <Text style={styles.walletLabel}>Welcome!</Text>
+          <Text style={styles.balance}>One App. Many Possibilities.</Text>
+        </View>
+        <Card title="🌐 Social Media" subtitle="Connect with friends"
+          onPress={() => setPage("Social")} />
+        <Card title="💰 My Wallet" subtitle="Crypto + Digital Money"
+          onPress={() => setPage("Wallet")} />
+        <Card title="🛠️ All Features" subtitle="Explore the app"
+          onPress={() => setPage("Tools")} />
+      </ScrollView>
+    );
+  };
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.logo}>BABU LINK TRACKER</Text>
+        <Text style={styles.headerSub}>Social • Wallet • Connect</Text>
+      </View>
+
+      <View style={styles.content}>{showPage()}</View>
+
+      <View style={styles.nav}>
+        {["Home", "Social", "Wallet", "Tools", "Profile"].map((item) => (
+          <TouchableOpacity key={item} onPress={() => setPage(item)}
+            style={styles.navItem}>
+            <Text style={[styles.navText, page === item && styles.navActive]}>
+              {item === "Home" ? "🏠" :
+               item === "Social" ? "👥" :
+               item === "Wallet" ? "💰" :
+               item === "Tools" ? "🛠️" : "👤"}
+            </Text>
+            <Text style={[styles.navLabel, page === item && styles.navActive]}>
+              {item}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: "#F1F5FB" },
+  header: { backgroundColor: "#142B55", padding: 20, paddingTop: 45 },
+  logo: { color: "white", fontSize: 21, fontWeight: "bold" },
+  headerSub: { color: "#C8D8F5", marginTop: 5 },
+  content: { flex: 1, padding: 15 },
+  heading: { fontSize: 24, fontWeight: "bold", color: "#142B55", marginBottom: 15 },
+  walletBox: { backgroundColor: "#142B55", padding: 22, borderRadius: 18, marginVertical: 12 },
+  walletLabel: { color: "#C8D8F5", fontSize: 15 },
+  balance: { color: "white", fontSize: 25, fontWeight: "bold", marginVertical: 8 },
+  card: { backgroundColor: "white", padding: 17, borderRadius: 14, marginVertical: 6 },
+  cardTitle: { color: "#142B55", fontSize: 17, fontWeight: "bold" },
+  muted: { color: "#69758A", fontSize: 13, marginTop: 5 },
+  button: { backgroundColor: "#2865D7", padding: 15, borderRadius: 12, marginVertical: 6 },
+  buttonText: { color: "white", textAlign: "center", fontWeight: "bold" },
+  row: { flexDirection: "row", gap: 8, marginVertical: 12 },
+  choice: { flex: 1, padding: 13, borderRadius: 10, backgroundColor: "#DDE6F5" },
+  active: { backgroundColor: "#AFC9FA" },
+  choiceText: { color: "#142B55", textAlign: "center", fontWeight: "bold" },
+  section: { color: "#142B55", fontWeight: "bold", fontSize: 19, marginTop: 22 },
+  input: { backgroundColor: "white", borderRadius: 10, padding: 14, marginVertical: 10, color: "#142B55" },
+  result: { fontSize: 23, color: "#2865D7", fontWeight: "bold", marginVertical: 10 },
+  nav: { flexDirection: "row", backgroundColor: "white", paddingVertical: 10, borderTopWidth: 1, borderColor: "#E0E6EF" },
+  navItem: { flex: 1, alignItems: "center" },
+  navText: { fontSize: 19 },
+  navLabel: { fontSize: 10, color: "#68758A", marginTop: 3 },
+  navActive: { color: "#2865D7", fontWeight: "bold" }
+});
+---
+title: Expo SDK reference
+description: Access device and system functionality in your Expo and React Native apps using Expo SDK packages.
+hideTOC: true
+---
+
+import { BookOpen02Icon } from '@expo/styleguide-icons/outline/BookOpen02Icon';
+import { CodeSquare01Icon } from '@expo/styleguide-icons/outline/CodeSquare01Icon';
+
+import { BoxLink } from '~/ui/components/BoxLink';
+import { Collapsible } from '~/ui/components/Collapsible';
+import RedirectNotification from '~/ui/components/RedirectNotification';
+import {
+  AndroidIOSCompatibilityTable,
+  ReactNativeCompatibilityTable,
+} from '~/ui/components/SDKTables';
+import { Terminal } from '~/ui/components/Snippet';
+import { CODE } from '~/ui/components/Text';
+
+<RedirectNotification>
+  The page you are looking for does not exist in this SDK version. It may have been deprecated or
+  added to a newer SDK version.
+</RedirectNotification>
+
+The Expo SDK is a collection of packages that provide access to device and system functionality such as camera, contacts, location, sensors, haptics, and more. Each package targets a specific feature and can be used independently. All packages work in any React Native app with the `expo` package installed.
+
+You can install any Expo SDK package using the [`npx expo install`](/more/expo-cli/#install) command. For example, three different packages are installed using the following command:
+
+<Terminal
+  cmd={{
+    npm: ['$ npx expo install expo-camera expo-contacts expo-sensors'],
+    yarn: ['$ yarn expo install expo-camera expo-contacts expo-sensors'],
+    pnpm: ['$ pnpm expo install expo-camera expo-contacts expo-sensors'],
+    bun: ['$ bun expo install expo-camera expo-contacts expo-sensors'],
+  }}
+/>
+
+After installing one or more packages, you can import them into your JavaScript code:
+
+```ts
+import { CameraView } from 'expo-camera';
+import { Contact } from 'expo-contacts';
+import { Gyroscope } from 'expo-sensors';
+```
+
+This allows you to write [`Contact.getAll()`](./sdk/contacts#getalloptions) and read the contacts from the device, read the gyroscope sensor to detect device movement, or start the phone's camera and take photos.
+
+## All Expo SDK packages work in any React Native app
+
+Expo apps are React Native apps, so all Expo SDK packages work in any React Native app with the `expo` package installed and configured. The easiest way to create a React Native app with support for Expo SDK packages is to use `create-expo-app`. However, you can also add Expo SDK support to an existing React Native app with the `npx install-expo-modules` command.
+
+<Terminal
+  cmd={{
+    npm: [
+      '# Create a project named my-app',
+      '$ npx create-expo-app my-app --template bare-minimum',
+    ],
+    yarn: [
+      '# Create a project named my-app',
+      '$ yarn create expo-app my-app --template bare-minimum',
+    ],
+    pnpm: [
+      '# Create a project named my-app',
+      '$ pnpm create expo-app my-app --template bare-minimum',
+    ],
+    bun: ['# Create a project named my-app', '$ bun create expo my-app --template bare-minimum'],
+  }}
+/>
+
+<BoxLink
+  title="Install Expo SDK packages in existing React Native apps"
+  href="/bare/installing-expo-modules"
+  description={
+    <>
+      Learn more about configuring projects created with{' '}
+      <CODE>npx @react-native-community/cli@latest init</CODE> to Expo SDK packages.
+    </>
+  }
+  Icon={BookOpen02Icon}
+/>
+
+<BoxLink
+  title="Use libraries"
+  description="Learn how to install Expo SDK packages in your project."
+  href="/workflow/using-libraries"
+  Icon={CodeSquare01Icon}
+/>
+
+## Using pre-release versions
+
+New Expo SDK versions are released three times each year. Between these releases, we publish pre-release versions of the `expo` package and all of the Expo SDK packages. Pre-releases are not considered stable and should only be used if you are comfortable with the risk of encountering bugs or other issues.
+
+### Canary releases
+
+Canary releases represent a snapshot of the state of the `main` branch at the time they are published. Canary package versions include `-canary` in the name, along with the date and commit hash, such as `58.0.0-canary-20260909-ea7a89a`. To install the latest canary release:
+
+<Terminal
+  cmd={{
+    npm: [
+      '# Install the alpha version of expo and its related packages',
+      '$ npm install expo@canary && npx expo install --fix',
+    ],
+    yarn: [
+      '# Install the alpha version of expo and its related packages',
+      '$ yarn add expo@canary && yarn expo install --fix',
+    ],
+    pnpm: [
+      '# Install the alpha version of expo and its related packages',
+      '$ pnpm add expo@canary && pnpm expo install --fix',
+    ],
+    bun: [
+      '# Install the alpha version of expo and its related packages',
+      '$ bun add expo@canary && bun expo install --fix',
+    ],
+  }}
+/>
+
+You can often use pre-release versions of individual packages with stable releases of the Expo SDK. There may occasionally be incompatibilities or other issues that arise in canary-quality releases. You may want to [silence dependency validation warnings](/more/expo-cli/#configuring-dependency-validation) if you opt in to the canary package and once you have verified that it works well for your use cases.
+
+### Beta releases
+
+Before each Expo SDK release, we publish beta versions of the `expo` package and all of the Expo SDK packages. Beta releases are considered much more stable than canary releases, and we encourage developers to try them out on their apps and share their feedback. Beta releases use the `beta` tag on npm and follow the instructions in the related [changelog](https://expo.dev/changelog) post.
+
+## Each Expo SDK version depends on a React Native version
+
+<ReactNativeCompatibilityTable />
+
+### Additional information
+
+<Collapsible summary="Expo SDK policy for tracking React Native releases">
+
+- Each Expo SDK release targets a single React Native version. This is typically the latest stable version at the time of the release.
+- React Native currently has six releases per year and aims for every release to include no breaking changes.
+- Expo SDK releases aim to follow this cadence.
+- Pre-release versions of the upcoming Expo SDK will include support for the latest version of React Native quickly, usually the same day it is released. A member of the Expo SDK team works on the React Native releases team for each release, and is responsible for continuously updating the React Native version in the Expo repository, verifying compatibility, and reporting regressions back to the React Native team.
+
+</Collapsible>
+
+<Collapsible summary="What if I need a change from the latest React Native version and it's not yet in an Expo SDK release?"
+>
+Expo engineers on the React Native releases team ensure that any urgent fixes are included in the React Native version used by the latest Expo SDK. If your specific fix won't be cherrypicked into an existing release, perhaps because it is not considered critical or because it involves a breaking change, then you have two options:
+
+1. Use [`patch-package`](https://github.com/ds300/patch-package) to pull in the fix.
+2. Use a [pre-release version of the Expo SDK](#using-pre-release-versions).
+
+</Collapsible>
+
+<Collapsible summary="Can I use an older version of React Native with the latest Expo SDK?">
+
+Packages in the Expo SDK are intended to support the target React Native version for that SDK. Typically, they will not support older versions of React Native, but they may. When a new version of React Native is released, the latest versions of the Expo SDK packages are typically updated to support it. However, this may take weeks or more, depending on the extent of the changes in the release.
+
+</Collapsible>
+
+## Support for Android and iOS versions
+
+Each version of Expo SDK supports a minimum OS version of Android and iOS. For Android, the `compileSdkVersion` is defined which tells the [Gradle](https://developer.android.com/studio/build) which Android SDK version to use to compile the app. This also means that you can use the Android API features included in that SDK version and from the previous versions. For iOS, the [Xcode](https://developer.apple.com/news/upcoming-requirements/) tells the minimum Xcode SDK version to use to compile the app.
+
+<AndroidIOSCompatibilityTable />
+
+When deciding whether to upgrade your Expo SDK version, consider both Expo's SDK version and app store submission requirements, as described in the above table. Google Play Store and Apple App Store periodically increase their minimum required OS versions and API levels, which are required for new app submissions. Expo has no control over the app store requirements, and you should check [Google](https://developer.android.com/studio/build) and [Apple](https://developer.apple.com/news/upcoming-requirements/) for the current store submission requirements.
